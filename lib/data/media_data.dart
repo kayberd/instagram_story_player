@@ -1,7 +1,7 @@
 import 'package:instagram_story_player/models/story.dart' show MediaType, Story;
 import 'package:instagram_story_player/models/story_group.dart';
 
-final List<Story> stories = [
+final List<Story> _stories = [
    Story(
     url:
         'https://images.unsplash.com/photo-1534103362078-d07e750bd0c4?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80',
@@ -31,9 +31,9 @@ final List<Story> stories = [
   ),
 ];
 final List<StoryGroup> storyGroups = [
-  StoryGroup(stories: [stories[0],stories[1]], user: 0),
-  StoryGroup(stories: [stories[2],stories[3]], user: 0),
-  StoryGroup(stories: [stories[4],stories[2]], user: 0),
+  StoryGroup(stories: [_stories[0],_stories[1]], user: 0),
+  StoryGroup(stories: [_stories[2],_stories[3]], user: 0),
+  StoryGroup(stories: [_stories[4],_stories[2]], user: 0),
   // StoryGroup(stories: [stories[0],stories[1]], user: 0),
   // StoryGroup(stories: [stories[0],stories[1]], user: 0),
 ];
