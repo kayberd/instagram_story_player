@@ -1,4 +1,5 @@
 import 'package:instagram_story_player/models/story.dart' show MediaType, Story;
+import 'package:instagram_story_player/models/story_group.dart';
 
 final List<Story> stories = [
    Story(
@@ -28,4 +29,11 @@ final List<Story> stories = [
     media: MediaType.image,
     duration: Duration(seconds: 8),
   ),
+];
+final List<StoryGroup> storyGroups = [
+  StoryGroup(stories: [stories[0],stories[1]], user: 0),
+  StoryGroup(stories: [stories[2],stories[3]], user: 0),
+  StoryGroup(stories: [stories[4],stories[2]], user: 0),
+  // StoryGroup(stories: [stories[0],stories[1]], user: 0),
+  // StoryGroup(stories: [stories[0],stories[1]], user: 0),
 ];

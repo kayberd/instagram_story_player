@@ -8,6 +8,4 @@ class Story {
    final Duration duration;
 
    Story({required this.url, required this.media, required this.duration});
-
-
 }
