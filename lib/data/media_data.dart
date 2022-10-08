@@ -34,6 +34,9 @@ final List<StoryGroup> storyGroups = [
   StoryGroup(stories: [_stories[0],_stories[1]]),
   StoryGroup(stories: [_stories[2],_stories[3]]),
   StoryGroup(stories: [_stories[4],_stories[2]]),
+  StoryGroup(stories: [_stories[0],_stories[1]]),
+  StoryGroup(stories: [_stories[2],_stories[3]]),
+  StoryGroup(stories: [_stories[4],_stories[2]]),
   // StoryGroup(stories: [stories[0],stories[1]], user: 0),
   // StoryGroup(stories: [stories[0],stories[1]], user: 0),
 ];

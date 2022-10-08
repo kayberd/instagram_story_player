@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:instagram_story_player/bloc/story_bloc.dart';
-import 'package:instagram_story_player/data/media_data.dart';
-import 'package:instagram_story_player/screens/story_group_screen.dart';
 import 'package:instagram_story_player/screens/story_groups_screen.dart';
 
 void main() {

@@ -6,7 +6,9 @@ abstract class StoryState extends Equatable {
 
   StoryState(this.storyGroups, this.lastStoryGroupIndex);
 
-  copyWith({List<StoryGroup>? storyGroup, int? lastStoryGroupIndex});
+  StoryUpdated copyWith({List<StoryGroup>? storyGroup, int? lastStoryGroupIndex}) {
+    return StoryUpdated(storyGroup ?? this.storyGroups, lastStoryGroupIndex ?? this.lastStoryGroupIndex);
+  }
 
   @override
   List<Object> get props => [storyGroups, lastStoryGroupIndex];
@@ -14,16 +16,8 @@ abstract class StoryState extends Equatable {
 
 class StoryInitial extends StoryState {
   StoryInitial() : super(storyGroups, 0);
-
-  @override
-  copyWith({List<StoryGroup>? storyGroup, int? lastStoryGroupIndex}) {}
 }
 
 class StoryUpdated extends StoryState {
   StoryUpdated(super.storyGroup, super.lastStoryGroupIndex);
-
-  @override
-  StoryUpdated copyWith({List<StoryGroup>? storyGroup, int? lastStoryGroupIndex}) {
-    return StoryUpdated(storyGroup ?? this.storyGroups, lastStoryGroupIndex ?? this.lastStoryGroupIndex);
-  }
 }

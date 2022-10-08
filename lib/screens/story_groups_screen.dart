@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_carousel_slider/carousel_slider.dart';
+import 'package:flutter_carousel_slider/carousel_slider_indicators.dart';
 import 'package:flutter_carousel_slider/carousel_slider_transforms.dart';
 import 'package:instagram_story_player/bloc/story_bloc.dart';
 import 'package:instagram_story_player/models/story_group.dart';
@@ -59,6 +60,7 @@ class _StoryGroupsScreenState extends State<StoryGroupsScreen> {
           itemCount: _storyGroups.length,
           scrollPhysics: NeverScrollableScrollPhysics(),
           slideTransform: CubeTransform(),
+          slideIndicator: CircularSlideIndicator(),
         ),
       ),
     );

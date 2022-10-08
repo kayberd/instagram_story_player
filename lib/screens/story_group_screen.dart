@@ -7,7 +7,6 @@ import 'package:instagram_story_player/bloc/story_bloc.dart';
 import 'package:instagram_story_player/models/story.dart';
 import 'package:instagram_story_player/models/story_group.dart';
 import 'package:instagram_story_player/screens/components/story_bars.dart';
-import 'package:video_player/video_player.dart';
 
 class StoryGroupScreen extends StatefulWidget {
   final StoryGroup storyGroup;
@@ -38,16 +37,24 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
     sub = _bloc.stream.listen((event) {
       final newIndex = event.storyGroups[event.lastStoryGroupIndex].lastWatchedIndex;
       if (lastStoryIndex < newIndex) {
-        _pageController.nextPage(duration: Duration(), curve: Curves.linear);
+        _pageController.nextPage(duration: Duration(milliseconds: 1), curve: Curves.linear);
       } else if (lastStoryIndex > newIndex) {
-        _pageController.previousPage(duration: Duration(), curve: Curves.linear);
+        _pageController.previousPage(duration: Duration(milliseconds: 1), curve: Curves.linear);
       }
       setState(() {
         lastStoryIndex = newIndex;
         percentWatched = 0.0;
       });
+      _startWatching();
     });
-    _startWatching();
+
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    sub.cancel();
+    super.dispose();
   }
 
   @override
@@ -59,6 +66,7 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
         onLongPressUp: _relaseHandler,
         onTapDown: _tapHandler,
         child: PageView.builder(
+          physics: NeverScrollableScrollPhysics(),
           controller: _pageController,
           itemCount: _stories.length,
           itemBuilder: (context, index) {
@@ -84,15 +92,14 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
             }
             return Stack(
               children: [
+                media,
                 Padding(
                   padding: const EdgeInsets.only(top: 16, left: 4, right: 4),
-                  child: StoryBars(
-                    lastWatchedIndex: lastStoryIndex,
-                    currWatchedPercent: percentWatched,
-                    totalBarCount: _stories.length,
+                  child: Text(
+                    '${_bloc.state.lastStoryGroupIndex} - ${lastStoryIndex}',
+                    style: TextStyle(fontSize: 25, color: Colors.red),
                   ),
                 ),
-                media
               ],
             );
           },
@@ -102,10 +109,10 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
   }
 
   void _startWatching() {
-    Timer.periodic(Duration(milliseconds: 50), (timer) {
+    Timer.periodic(Duration(milliseconds: 500), (timer) {
       setState(() {
         if (!isStopped) {
-          if (percentWatched + 0.01 < 1  ) {
+          if (percentWatched + 0.01 < 1) {
             percentWatched += 0.1;
           } else {
             _bloc.add(TapRightEvent());
