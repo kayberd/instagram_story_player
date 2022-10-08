@@ -30,6 +30,7 @@ final List<Story> _stories = [
     duration: Duration(seconds: 8),
   ),
 ];
+// final stories = _stories;
 final List<StoryGroup> storyGroups = [
   StoryGroup(stories: [_stories[0],_stories[1]]),
   StoryGroup(stories: [_stories[2],_stories[3]]),

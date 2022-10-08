@@ -42,6 +42,8 @@ dependencies:
   flutter_bloc: ^8.1.1
   equatable: ^2.0.5
   flutter_carousel_slider: ^1.0.9
+  cube_transition: ^1.0.2
+  cube_transition_plus: ^2.0.1
 
 
 dev_dependencies:
