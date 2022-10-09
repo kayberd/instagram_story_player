@@ -10,8 +10,10 @@ part 'story_state.dart';
 class StoryBloc extends Bloc<StoryEvent, StoryState> {
   StoryBloc() : super(StoryInitial()) {
     on<StoryEvent>((event, emit) {
+
       StoryUpdated? newState;
       var currGroupIndex = state.currGroupIndex;
+      if(event.sender != currGroupIndex) return;
       var currStoryIndex = state.currStoryIndexes[currGroupIndex];
 
       if (event is TapLeftEvent) {

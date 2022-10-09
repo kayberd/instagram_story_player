@@ -24,10 +24,12 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
   late StreamSubscription<StoryState> _sub;
 
   late List<Story> _stories;
-  late Timer _timer;
+  Timer? _timer;
 
   // late VideoPlayerController _videoPlayerController;
-  int currStoryIndex = 0;
+  late int currStoryIndex;
+  late int currStoryGroup;
+  int timerCount = 0;
   double percentWatched = 0.0;
   bool isStopped = false;
 
@@ -36,41 +38,26 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
     super.initState();
     _bloc = context.read<StoryBloc>();
     _stories = storyGroups[widget.index].stories;
+    currStoryIndex = _bloc.state.currStoryIndexes[widget.index];
+    currStoryGroup = _bloc.state.currGroupIndex;
     _pageController = PageController(initialPage: currStoryIndex);
     _sub = _bloc.stream.listen((state) {
-      print("INDEX: ${widget.index}");
-      switch (state.action) {
-        case ACTION.init:
-          break;
-        case ACTION.nextStory:
-          _forward();
-          break;
-        case ACTION.prevStory:
-          _backward();
-          break;
-        case ACTION.nextGroup:
-          _terminate();
-          break;
-        case ACTION.prevGroup:
-          _terminate();
-          break;
-      }
+      setState(() {
+        currStoryIndex = state.currStoryIndexes[widget.index];
+        currStoryGroup = state.currGroupIndex;
+      });
     });
     _startWatching();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
-    _terminate();
+    _sub.cancel();
     _pageController.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 
-  _terminate() {
-    _timer.cancel();
-    _sub.cancel();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -123,18 +110,23 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
     );
   }
 
-  void _startWatching() {
-    percentWatched = 0.0;
-    _timer = Timer.periodic(Duration(milliseconds: 500), (timer) {
-      print("TIMER: ${widget.index}");
-      if (!isStopped) {
+  void _startWatching([int? index]) {
+    _timer = Timer.periodic(Duration(milliseconds: 500), (timer)  {
+      print("TIMER: ${widget.index} - percentWatched: $percentWatched");
+      if (!isStopped && mounted && currStoryGroup == widget.index) {
         if (percentWatched + 0.01 < 1) {
           setState(() => percentWatched += 0.1);
         } else {
-          _timer.cancel();
-          _bloc.add(TapRightEvent(widget.index));
+          timer.cancel();
+          _timer?.cancel();
+          _forward();
         }
+      } else {
+        percentWatched = 0.0;
+        timer.cancel();
+        _timer?.cancel();
       }
+
     });
   }
 
@@ -142,14 +134,16 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     final dx = details.globalPosition.dx;
     if (dx < screenWidth / 4) {
-      _bloc.add(TapLeftEvent(widget.index));
-
+      _backward();
     } else if (dx > (screenWidth * 3) / 4) {
-      _bloc.add(TapRightEvent(widget.index));
+      _forward();
     }
   }
 
   _forward() {
+    _timer?.cancel();
+    percentWatched = 0.0;
+    _bloc.add(TapRightEvent(widget.index));
     setState(() {
       currStoryIndex++;
     });
@@ -158,6 +152,9 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
   }
 
   _backward() {
+    _timer?.cancel();
+    percentWatched = 0.0;
+    _bloc.add(TapLeftEvent(widget.index));
     setState(() {
       currStoryIndex--;
     });

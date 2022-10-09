@@ -34,9 +34,9 @@ class _StoryGroupsScreenState extends State<StoryGroupsScreen> {
     sub = _storyBloc.stream.listen((state) {
       if (currGroupIndex != state.currGroupIndex) {
         if (state.action == ACTION.nextGroup) {
-          _controller.nextPage(Duration(seconds: 1));
+          _controller.nextPage(Duration(milliseconds: 500));
         } else if (state.action == ACTION.prevGroup) {
-          _controller.previousPage(Duration(seconds: 1));
+          _controller.previousPage(Duration(milliseconds: 500));
         }
         currGroupIndex = state.currGroupIndex;
       }
@@ -65,10 +65,10 @@ class _StoryGroupsScreenState extends State<StoryGroupsScreen> {
   void _slideChangedHandler(int newIndex) {
     if (newIndex < currGroupIndex) {
       // SWIPE RIGHT
-      _storyBloc.add(SwipeRightEvent(-2));
+      _storyBloc.add(SwipeRightEvent(currGroupIndex));
     } else if (newIndex > currGroupIndex) {
       // SWIPE LEFT
-      _storyBloc.add(SwipeLeftEvent(-2));
+      _storyBloc.add(SwipeLeftEvent(currGroupIndex));
     } else {
       // INDEX NOT CHANGED
     }

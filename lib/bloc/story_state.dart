@@ -10,7 +10,7 @@ abstract class StoryState extends Equatable {
   StoryState(this.currStoryIndexes, this.currGroupIndex, this.action);
 
   StoryUpdated copyWith({List<int>? currStoryIndexes, int? currGroupIndex, ACTION? action}) {
-    return StoryUpdated(currStoryIndexes ?? this.currStoryIndexes, currGroupIndex ?? this.currGroupIndex, action ?? this.action);
+    return StoryUpdated(currStoryIndexes ?? this.currStoryIndexes, currGroupIndex ?? this.currGroupIndex, action!);
   }
 
   @override
