@@ -4,61 +4,65 @@ import 'package:instagram_story_player/data/media_data.dart';
 import 'package:instagram_story_player/models/story_group.dart';
 
 part 'story_event.dart';
+
 part 'story_state.dart';
 
 class StoryBloc extends Bloc<StoryEvent, StoryState> {
   StoryBloc() : super(StoryInitial()) {
     on<StoryEvent>((event, emit) {
       StoryUpdated? newState;
-      final storyGroups = state.storyGroups;
-      var lastGroupIndex = state.lastStoryGroupIndex;
-      var lastStoryIndex = storyGroups[lastGroupIndex].lastWatchedIndex;
+      var currGroupIndex = state.currGroupIndex;
+      var currStoryIndex = state.currStoryIndexes[currGroupIndex];
 
       if (event is TapLeftEvent) {
         // GERİ GİDEMEZ AMA BAŞA SARAR
-        if (lastStoryIndex == -1 && lastGroupIndex == 0) {
+        if (currStoryIndex == 0 && currGroupIndex == 0) {
           // DO NOTHING RETURN SAME STATE
-          newState = state.copyWith();
-        } else if (lastStoryIndex != -1) {
+          // newState = state.copyWith();
+        } else if (currStoryIndex != 0) {
           // GERİ GİDEBİLİR GRUP INDEXİ DEĞİŞMEZ STORY İNDEXİ 1 AZALIR
-          state.storyGroups[lastGroupIndex].backward();
-          newState = state.copyWith();
-        } else if (lastStoryIndex == -1 && lastGroupIndex != 0) {
+          state.currStoryIndexes[currGroupIndex]--;
+          newState = state.copyWith(action: ACTION.prevStory);
+        } else if (currStoryIndex == 0 && currGroupIndex != 0) {
           // GERİ GİDEBİLİR GRUP INDEXİ DEĞİŞİR
-          newState = state.copyWith(lastStoryGroupIndex: lastGroupIndex - 1);
+          newState = state.copyWith(currGroupIndex: currGroupIndex - 1, action: ACTION.prevGroup);
         } else {
-          print("FUCK");
+          throw Exception("TAP-LEFT NOT HANDLED CASE");
         }
       } else if (event is SwipeRightEvent) {
-        if (lastGroupIndex == 0) {
+        if (currGroupIndex == 0) {
           // DO NOTHING
-          newState = state.copyWith();
+          // newState = state.copyWith();
         } else {
-          newState = state.copyWith(lastStoryGroupIndex: lastGroupIndex - 1);
+          newState = state.copyWith(currGroupIndex: currGroupIndex - 1, action: ACTION.prevGroup);
         }
       } else if (event is TapRightEvent) {
-        if (lastStoryIndex == storyGroups[lastGroupIndex].stories.length - 1 && lastGroupIndex == storyGroups.length - 1) {
+        if (currStoryIndex == storyGroups[currGroupIndex].stories.length - 1 && currGroupIndex == storyGroups.length - 1) {
           // SON GRUBUN SON HİKAYESİ İSE DO NOTHING
-          newState = state.copyWith();
-        } else if (lastStoryIndex == storyGroups[lastGroupIndex].stories.length - 1 && lastGroupIndex != storyGroups.length - 1) {
+          // newState = state.copyWith();
+        } else if (currStoryIndex == storyGroups[currGroupIndex].stories.length - 1 && currGroupIndex != storyGroups.length - 1) {
           // SONDA OLMAYAN BİR GRUBUN SON HİKAYESİ
-          newState = state.copyWith(lastStoryGroupIndex: lastGroupIndex + 1);
-        } else {
+          newState = state.copyWith(currGroupIndex: currGroupIndex + 1, action: ACTION.nextGroup);
+        } else if (currStoryIndex != storyGroups[currGroupIndex].stories.length - 1) {
           // SONDA OLMAYA BİR GRUBUN SONDA OLMAYAN BİR HİKAYESİ
-          state.storyGroups[lastGroupIndex].forward();
-          newState = state.copyWith();
+          state.currStoryIndexes[currGroupIndex]++;
+          newState = state.copyWith(action: ACTION.nextStory);
+        } else {
+          throw Exception("TAP-RIGHT NOT HANDLED CASE");
         }
       } else if (event is SwipeLeftEvent) {
-        if( lastGroupIndex == state.storyGroups.length - 1){
-          newState = state.copyWith();
+        if (currGroupIndex == storyGroups.length - 1) {
+          //newState = state.copyWith();
         } else {
-          newState = state.copyWith(lastStoryGroupIndex: lastGroupIndex + 1);
+          newState = state.copyWith(currGroupIndex: currGroupIndex + 1, action: ACTION.nextGroup);
         }
       } else {
-        print(state);
+        throw Exception("UNRECOGNIZED EVENT ERROR");
       }
 
-      emit(newState!);
+      if (newState != null) {
+        emit(newState);
+      }
       return;
     });
   }

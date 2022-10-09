@@ -1,15 +1,15 @@
 import 'dart:async';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_carousel_slider/carousel_slider.dart';
 import 'package:flutter_carousel_slider/carousel_slider_indicators.dart';
 import 'package:flutter_carousel_slider/carousel_slider_transforms.dart';
 import 'package:instagram_story_player/bloc/story_bloc.dart';
+import 'package:instagram_story_player/data/media_data.dart';
 import 'package:instagram_story_player/models/story_group.dart';
 import 'package:instagram_story_player/screens/story_group_screen.dart';
-
-int SWIPE_SENSITIVITY = 10;
 
 class StoryGroupsScreen extends StatefulWidget {
   const StoryGroupsScreen({Key? key}) : super(key: key);
@@ -19,33 +19,32 @@ class StoryGroupsScreen extends StatefulWidget {
 }
 
 class _StoryGroupsScreenState extends State<StoryGroupsScreen> {
+  late List<StoryGroup> _storyGroups = storyGroups;
   late CarouselSliderController _controller;
-  late List<StoryGroup> _storyGroups;
   late StoryBloc _storyBloc;
   late StreamSubscription<StoryState> sub;
-  int lastStoryGroupIndex = -1;
+  int currGroupIndex = 0;
+  bool allowEvent = true;
 
   @override
   void initState() {
     super.initState();
     _storyBloc = context.read<StoryBloc>();
     _controller = CarouselSliderController();
-    _storyGroups = _storyBloc.state.storyGroups;
-
-    sub = _storyBloc.stream.listen((event) {
-      final newIndex = event.lastStoryGroupIndex;
-      if (newIndex < lastStoryGroupIndex) {
-        _controller.previousPage();
-      } else {
-        _controller.nextPage();
+    sub = _storyBloc.stream.listen((state) {
+      if (currGroupIndex != state.currGroupIndex) {
+        if (state.action == ACTION.nextGroup) {
+          _controller.nextPage(Duration(seconds: 1));
+        } else if (state.action == ACTION.prevGroup) {
+          _controller.previousPage(Duration(seconds: 1));
+        }
+        currGroupIndex = state.currGroupIndex;
       }
-      lastStoryGroupIndex = newIndex;
     });
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     sub.cancel();
     super.dispose();
   }
@@ -53,26 +52,38 @@ class _StoryGroupsScreenState extends State<StoryGroupsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GestureDetector(
-        onHorizontalDragUpdate: _swipeHandler,
-        child: CarouselSlider.builder(
-          slideBuilder: (index) => StoryGroupScreen(storyGroup: _storyGroups[index]),
-          itemCount: _storyGroups.length,
-          scrollPhysics: NeverScrollableScrollPhysics(),
-          slideTransform: CubeTransform(),
-          slideIndicator: CircularSlideIndicator(),
-        ),
+      body: CarouselSlider.builder(
+        controller: _controller,
+        onSlideChanged: _slideChangedHandler,
+        slideBuilder: (index) => StoryGroupScreen(index: index),
+        itemCount: _storyGroups.length,
+        slideTransform: CubeTransform(),
       ),
     );
   }
 
-  void _swipeHandler(DragUpdateDetails details) {
-    if (details.delta.dx > SWIPE_SENSITIVITY) {
+  void _slideChangedHandler(int newIndex) {
+    if (newIndex < currGroupIndex) {
       // SWIPE RIGHT
-      _storyBloc.add(SwipeRightEvent());
-    } else if (details.delta.dx < -SWIPE_SENSITIVITY) {
+      _storyBloc.add(SwipeRightEvent(-2));
+    } else if (newIndex > currGroupIndex) {
       // SWIPE LEFT
-      _storyBloc.add(SwipeLeftEvent());
+      _storyBloc.add(SwipeLeftEvent(-2));
+    } else {
+      // INDEX NOT CHANGED
     }
+    currGroupIndex = newIndex;
   }
+
+// _simulateSwipeRight() async {
+//   GestureBinding.instance.handlePointerEvent(PointerDownEvent(
+//     position: Offset(200, 300),
+//   ));
+//   await Future.delayed(Duration(milliseconds: 500));
+//   GestureBinding.instance.handlePointerEvent(Pointer)
+//   GestureBinding.instance.handlePointerEvent(PointerUpEvent(
+//     position: Offset(200, 300),
+//   ));
+// }
+
 }

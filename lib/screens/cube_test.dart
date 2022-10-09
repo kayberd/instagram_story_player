@@ -25,16 +25,7 @@ class _Sample2State extends State<Sample2> {
       body: Center(
         child: CubePageView(
         controller: _controller,
-        children: stories
-            .map(
-              (item) => Center(
-                child: Image.network(
-                  item.url,
-                  fit: BoxFit.fitHeight,
-                ),
-              ),
-            )
-            .toList(),
+        children: []
           ),
       ),
       floatingActionButton: FloatingActionButton(

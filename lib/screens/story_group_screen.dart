@@ -4,14 +4,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:instagram_story_player/bloc/story_bloc.dart';
+import 'package:instagram_story_player/data/media_data.dart';
 import 'package:instagram_story_player/models/story.dart';
 import 'package:instagram_story_player/models/story_group.dart';
 import 'package:instagram_story_player/screens/components/story_bars.dart';
 
 class StoryGroupScreen extends StatefulWidget {
-  final StoryGroup storyGroup;
+  final int index;
 
-  StoryGroupScreen({required this.storyGroup});
+  StoryGroupScreen({required this.index});
 
   @override
   State<StoryGroupScreen> createState() => _StoryGroupScreenState();
@@ -20,11 +21,13 @@ class StoryGroupScreen extends StatefulWidget {
 class _StoryGroupScreenState extends State<StoryGroupScreen> {
   late PageController _pageController;
   late StoryBloc _bloc;
-  late StreamSubscription<StoryState> sub;
+  late StreamSubscription<StoryState> _sub;
+
   late List<Story> _stories;
+  late Timer _timer;
 
   // late VideoPlayerController _videoPlayerController;
-  int lastStoryIndex = -1;
+  int currStoryIndex = 0;
   double percentWatched = 0.0;
   bool isStopped = false;
 
@@ -32,29 +35,41 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
   void initState() {
     super.initState();
     _bloc = context.read<StoryBloc>();
-    _stories = widget.storyGroup.stories;
-    _pageController = PageController();
-    sub = _bloc.stream.listen((event) {
-      final newIndex = event.storyGroups[event.lastStoryGroupIndex].lastWatchedIndex;
-      if (lastStoryIndex < newIndex) {
-        _pageController.nextPage(duration: Duration(milliseconds: 1), curve: Curves.linear);
-      } else if (lastStoryIndex > newIndex) {
-        _pageController.previousPage(duration: Duration(milliseconds: 1), curve: Curves.linear);
+    _stories = storyGroups[widget.index].stories;
+    _pageController = PageController(initialPage: currStoryIndex);
+    _sub = _bloc.stream.listen((state) {
+      print("INDEX: ${widget.index}");
+      switch (state.action) {
+        case ACTION.init:
+          break;
+        case ACTION.nextStory:
+          _forward();
+          break;
+        case ACTION.prevStory:
+          _backward();
+          break;
+        case ACTION.nextGroup:
+          _terminate();
+          break;
+        case ACTION.prevGroup:
+          _terminate();
+          break;
       }
-      setState(() {
-        lastStoryIndex = newIndex;
-        percentWatched = 0.0;
-      });
-      _startWatching();
     });
-
+    _startWatching();
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
-    sub.cancel();
+    _terminate();
+    _pageController.dispose();
     super.dispose();
+  }
+
+  _terminate() {
+    _timer.cancel();
+    _sub.cancel();
   }
 
   @override
@@ -62,8 +77,6 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: GestureDetector(
-        onLongPress: _holdHandler,
-        onLongPressUp: _relaseHandler,
         onTapDown: _tapHandler,
         child: PageView.builder(
           physics: NeverScrollableScrollPhysics(),
@@ -93,13 +106,15 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
             return Stack(
               children: [
                 media,
-                Padding(
-                  padding: const EdgeInsets.only(top: 16, left: 4, right: 4),
-                  child: Text(
-                    '${_bloc.state.lastStoryGroupIndex} - ${lastStoryIndex}',
-                    style: TextStyle(fontSize: 25, color: Colors.red),
-                  ),
-                ),
+                StoryBars(currStoryIndex: currStoryIndex, totalBarCount: _stories.length, currWatchedPercent: percentWatched),
+
+                // Padding(
+                //   padding: const EdgeInsets.only(top: 16, left: 4, right: 4),
+                //   child: Text(
+                //     '${_bloc.state.lastStoryGroupIndex} - ${currStoryIndex}',
+                //     style: TextStyle(fontSize: 25, color: Colors.red),
+                //   ),
+                // ),
               ],
             );
           },
@@ -109,17 +124,17 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
   }
 
   void _startWatching() {
-    Timer.periodic(Duration(milliseconds: 500), (timer) {
-      setState(() {
-        if (!isStopped) {
-          if (percentWatched + 0.01 < 1) {
-            percentWatched += 0.1;
-          } else {
-            _bloc.add(TapRightEvent());
-            timer.cancel();
-          }
+    percentWatched = 0.0;
+    _timer = Timer.periodic(Duration(milliseconds: 500), (timer) {
+      print("TIMER: ${widget.index}");
+      if (!isStopped) {
+        if (percentWatched + 0.01 < 1) {
+          setState(() => percentWatched += 0.1);
+        } else {
+          _timer.cancel();
+          _bloc.add(TapRightEvent(widget.index));
         }
-      });
+      }
     });
   }
 
@@ -127,11 +142,27 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     final dx = details.globalPosition.dx;
     if (dx < screenWidth / 4) {
-      _bloc.add(TapLeftEvent());
-    } else if (dx < (screenWidth * 3) / 4) {
-      // TODO: Forward
-      _bloc.add(TapRightEvent());
+      _bloc.add(TapLeftEvent(widget.index));
+
+    } else if (dx > (screenWidth * 3) / 4) {
+      _bloc.add(TapRightEvent(widget.index));
     }
+  }
+
+  _forward() {
+    setState(() {
+      currStoryIndex++;
+    });
+    _pageController.nextPage(duration: Duration(milliseconds: 1), curve: Curves.linear);
+    _startWatching();
+  }
+
+  _backward() {
+    setState(() {
+      currStoryIndex--;
+    });
+    _pageController.previousPage(duration: Duration(milliseconds: 1), curve: Curves.linear);
+    _startWatching();
   }
 
   void _holdHandler() {

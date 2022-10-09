@@ -1,23 +1,26 @@
 part of 'story_bloc.dart';
 
+enum ACTION { init, nextStory, prevStory, nextGroup, prevGroup }
+
 abstract class StoryState extends Equatable {
-  final List<StoryGroup> storyGroups;
-  final int lastStoryGroupIndex;
+  final List<int> currStoryIndexes;
+  final int currGroupIndex;
+  final ACTION action;
 
-  StoryState(this.storyGroups, this.lastStoryGroupIndex);
+  StoryState(this.currStoryIndexes, this.currGroupIndex, this.action);
 
-  StoryUpdated copyWith({List<StoryGroup>? storyGroup, int? lastStoryGroupIndex}) {
-    return StoryUpdated(storyGroup ?? this.storyGroups, lastStoryGroupIndex ?? this.lastStoryGroupIndex);
+  StoryUpdated copyWith({List<int>? currStoryIndexes, int? currGroupIndex, ACTION? action}) {
+    return StoryUpdated(currStoryIndexes ?? this.currStoryIndexes, currGroupIndex ?? this.currGroupIndex, action ?? this.action);
   }
 
   @override
-  List<Object> get props => [storyGroups, lastStoryGroupIndex];
+  List<Object> get props => [currStoryIndexes, currGroupIndex];
 }
 
 class StoryInitial extends StoryState {
-  StoryInitial() : super(storyGroups, 0);
+  StoryInitial() : super(initStoryIndexes, 0, ACTION.init);
 }
 
 class StoryUpdated extends StoryState {
-  StoryUpdated(super.storyGroup, super.lastStoryGroupIndex);
+  StoryUpdated(super.storyGroup, super.currGroupIndex, super.action);
 }
