@@ -10,9 +10,9 @@ class StoryBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return LinearPercentIndicator(
       width: width,
-      lineHeight: 15,
+      padding: EdgeInsets.symmetric(horizontal: 5.0),
       percent: percentWatched,
-      progressColor: Colors.grey[400],
+      progressColor: Colors.white,
       backgroundColor: Colors.grey[600],
     );
   }

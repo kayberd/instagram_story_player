@@ -4,12 +4,12 @@ import 'package:instagram_story_player/models/story_group.dart';
 final List<Story> _stories = [
    Story(
     url:
-        'https://w7.pngwing.com/pngs/876/886/png-transparent-brand-circle-design-pattern-number-text-number-download-with-transparent-background-thumbnail.png',
-    media: MediaType.image,
+        'https://cdn.pixabay.com/vimeo/147169807/Mercedes%20Glk%20-%201406.mp4?width=480&expiry=1665358558&hash=c9a13901d93662d4a66f7e21197c2db0a8646e8c',
+    media: MediaType.video,
     duration: Duration(seconds: 10),
   ),
    Story(
-    url: 'https://w7.pngwing.com/pngs/701/861/png-transparent-1-text-black-and-white-brand-pattern-number-1-angle-white-rectangle-thumbnail.png',
+    url: 'https://twitter.com/i/status/1578911410809364480',
     media: MediaType.image,
     duration: Duration(seconds: 7),
   ),
