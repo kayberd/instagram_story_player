@@ -29,6 +29,8 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
   Timer? _timer;
 
   late VideoPlayerController _videoPlayerController;
+  Future<void>? _initializeVideoPlayerFuture;
+
   late int currStoryIndex;
   late int currStoryGroup;
   int timerCount = 0;
@@ -38,7 +40,7 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
   @override
   void initState() {
     super.initState();
-    _videoPlayerController = VideoPlayerController.
+
     _bloc = context.read<StoryBloc>();
     _stories = storyGroups[widget.index].stories;
     currStoryIndex = _bloc.state.currStoryIndexes[widget.index];
@@ -53,12 +55,18 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
     _startWatching();
   }
 
+  Future<void> _initVideoPlayer(String url) async {
+    _videoPlayerController = VideoPlayerController.network(url);
+    _initializeVideoPlayerFuture = _videoPlayerController.initialize();
+  }
+
   @override
   void dispose() {
     _sub.cancel();
     _pageController.dispose();
     _timer?.cancel();
     super.dispose();
+    _videoPlayerController.dispose();
   }
 
   @override
@@ -81,17 +89,22 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
                 media = CachedNetworkImage(imageUrl: story.url, fit: BoxFit.cover);
                 break;
               case MediaType.video:
-                media = _videoPlayerController.value.isInitialized
-                    ? FittedBox(
-                  fit: BoxFit.cover,
-                  child: SizedBox(
-                    width: _videoPlayerController.value.size.width,
-                    height: _videoPlayerController.value.size.height,
-                    child: VideoPlayer(_videoPlayerController),
-                  ),
-                )
-                    : ErrorWidget(Exception("Video error"));
-                media = ErrorWidget(Exception("It is a video"));
+                _initVideoPlayer(story.url);
+                media = FutureBuilder(
+                  future: _initializeVideoPlayerFuture,
+                  builder: (context, snap) {
+                    if (snap.connectionState == ConnectionState.done) {
+                      _videoPlayerController.play();
+                      return Center(
+                          child: AspectRatio(
+                        aspectRatio: _videoPlayerController.value.aspectRatio,
+                        child: VideoPlayer(_videoPlayerController),
+                      ));
+                    } else {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                  },
+                );
                 break;
             }
             return Stack(
@@ -168,8 +181,8 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
 
   void _onTick(Timer timer) {
     print("TIMER: ${widget.index} - percentWatched: $percentWatched");
-    if(isStopped) return;
-    if(mounted && currStoryGroup == widget.index ){
+    if (isStopped) return;
+    if (mounted && currStoryGroup == widget.index) {
       if (percentWatched + 0.01 < 1) {
         setState(() => percentWatched += 0.1);
       } else {
@@ -182,6 +195,5 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
       timer.cancel();
       _timer?.cancel();
     }
-
   }
 }
