@@ -1,15 +1,14 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/gestures/long_press.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:instagram_story_player/bloc/story_bloc.dart';
 import 'package:instagram_story_player/data/media_data.dart';
 import 'package:instagram_story_player/models/story.dart';
 import 'package:instagram_story_player/models/story_group.dart';
 import 'package:instagram_story_player/screens/components/story_bars.dart';
-import 'package:video_player/video_player.dart';
 
 class StoryGroupScreen extends StatefulWidget {
   final int index;
@@ -28,7 +27,7 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
   late List<Story> _stories;
   Timer? _timer;
 
-  late VideoPlayerController _videoPlayerController;
+  // late VideoPlayerController _videoPlayerController;
   late int currStoryIndex;
   late int currStoryGroup;
   int timerCount = 0;
@@ -38,7 +37,6 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
   @override
   void initState() {
     super.initState();
-    _videoPlayerController = VideoPlayerController.
     _bloc = context.read<StoryBloc>();
     _stories = storyGroups[widget.index].stories;
     currStoryIndex = _bloc.state.currStoryIndexes[widget.index];
@@ -81,37 +79,27 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
                 media = CachedNetworkImage(imageUrl: story.url, fit: BoxFit.cover);
                 break;
               case MediaType.video:
-                media = _videoPlayerController.value.isInitialized
-                    ? FittedBox(
-                  fit: BoxFit.cover,
-                  child: SizedBox(
-                    width: _videoPlayerController.value.size.width,
-                    height: _videoPlayerController.value.size.height,
-                    child: VideoPlayer(_videoPlayerController),
-                  ),
-                )
-                    : ErrorWidget(Exception("Video error"));
+                // media = _videoPlayerController.value.isInitialized
+                //     ? FittedBox(
+                //   fit: BoxFit.cover,
+                //   child: SizedBox(
+                //     width: _videoPlayerController.value.size.width,
+                //     height: _videoPlayerController.value.size.height,
+                //     child: VideoPlayer(_videoPlayerController),
+                //   ),
+                // )
+                //     : ErrorWidget(Exception("Video error"));
                 media = ErrorWidget(Exception("It is a video"));
                 break;
             }
             return Stack(
-              alignment: Alignment.topCenter,
               children: [
-                Center(
-                  child: media,
-                ),
+                Center(child: media),
                 Container(
-                  padding: EdgeInsets.only(top: 16.0),
-                  height: 50,
+                  padding: EdgeInsets.only(top: 28.0),
+                  height: 16.0,
                   child: StoryBars(currStoryIndex: currStoryIndex, totalBarCount: _stories.length, currWatchedPercent: percentWatched),
                 ),
-                // Padding(
-                //   padding: const EdgeInsets.only(top: 16, left: 4, right: 4),
-                //   child: Text(
-                //     '${_bloc.state.lastStoryGroupIndex} - ${currStoryIndex}',
-                //     style: TextStyle(fontSize: 25, color: Colors.red),
-                //   ),
-                // ),
               ],
             );
           },
@@ -168,8 +156,8 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
 
   void _onTick(Timer timer) {
     print("TIMER: ${widget.index} - percentWatched: $percentWatched");
-    if(isStopped) return;
-    if(mounted && currStoryGroup == widget.index ){
+    if (isStopped) return;
+    if (mounted && currStoryGroup == widget.index) {
       if (percentWatched + 0.01 < 1) {
         setState(() => percentWatched += 0.1);
       } else {
@@ -182,6 +170,5 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
       timer.cancel();
       _timer?.cancel();
     }
-
   }
 }
