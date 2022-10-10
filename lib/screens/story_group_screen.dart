@@ -31,7 +31,7 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
   late int currStoryIndex;
   late int currStoryGroup;
   int timerCount = 0;
-  double percentWatched = 0.0;
+  late double percentWatched;
   bool isStopped = false;
 
   @override
@@ -55,7 +55,7 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
   void dispose() {
     _sub.cancel();
     _pageController.dispose();
-    _timer?.cancel();
+    _clearTimer();
     super.dispose();
   }
 
@@ -109,6 +109,10 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
   }
 
   void _startWatching([int? index]) {
+    setState(() {
+      percentWatched = 0.0;
+    });
+    _clearTimer();
     _timer = Timer.periodic(Duration(milliseconds: 500), (timer) {
       _onTick(timer);
     });
@@ -125,8 +129,6 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
   }
 
   _forward() {
-    _timer?.cancel();
-    percentWatched = 0.0;
     _bloc.add(TapRightEvent(widget.index));
     setState(() {
       currStoryIndex++;
@@ -136,12 +138,12 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
   }
 
   _backward() {
-    _timer?.cancel();
-    percentWatched = 0.0;
     _bloc.add(TapLeftEvent(widget.index));
-    setState(() {
-      currStoryIndex--;
-    });
+    if (currStoryIndex != 0) {
+      setState(() {
+        currStoryIndex--;
+      });
+    }
     _pageController.previousPage(duration: Duration(milliseconds: 1), curve: Curves.linear);
     _startWatching();
   }
@@ -151,24 +153,23 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
   }
 
   void _holdHandler(LongPressDownDetails details) {
-    isStopped = true;
+    isStopped = false;
   }
 
   void _onTick(Timer timer) {
-    print("TIMER: ${widget.index} - percentWatched: $percentWatched");
     if (isStopped) return;
+    print("TIMER: ${widget.index} - IS_MOUNTED: ${mounted} - CURR_GROUP_INDEX: ${currStoryGroup} - percentWatched: $percentWatched");
+
     if (mounted && currStoryGroup == widget.index) {
       if (percentWatched + 0.01 < 1) {
         setState(() => percentWatched += 0.1);
       } else {
-        timer.cancel();
-        _timer?.cancel();
         _forward();
       }
-    } else {
-      percentWatched = 0.0;
-      timer.cancel();
-      _timer?.cancel();
     }
+  }
+
+  void _clearTimer() {
+    if(_timer?.isActive ?? false) _timer!.cancel();
   }
 }
