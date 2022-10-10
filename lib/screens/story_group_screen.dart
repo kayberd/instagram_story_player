@@ -109,7 +109,9 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
   }
 
   void _startWatching([int? index]) {
+
     setState(() {
+      isStopped = false;
       percentWatched = 0.0;
     });
     _clearTimer();
@@ -153,7 +155,7 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
   }
 
   void _holdHandler(LongPressDownDetails details) {
-    isStopped = false;
+    isStopped = true;
   }
 
   void _onTick(Timer timer) {
