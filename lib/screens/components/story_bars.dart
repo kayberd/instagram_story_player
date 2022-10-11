@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:instagram_story_player/screens/components/story_bar.dart';
 
 class StoryBars extends StatelessWidget {
-   final int currStoryIndex;
-   final int totalBarCount;
-   final double currWatchedPercent;
-   StoryBars({required this.currStoryIndex, required this.totalBarCount, required this.currWatchedPercent});
+  final int currStoryIndex;
+  final int totalBarCount;
+  final double currWatchedPercent;
 
+  StoryBars({required this.currStoryIndex, required this.totalBarCount, required this.currWatchedPercent});
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +19,9 @@ class StoryBars extends StatelessWidget {
         itemCount: totalBarCount,
         itemBuilder: (context, index) {
           final barWidth = MediaQuery.of(context).size.width / totalBarCount;
-          if(index < currStoryIndex ) {
+          if (index < currStoryIndex) {
             return StoryBar(percentWatched: 1, width: barWidth);
-          } else if (index == currStoryIndex ) {
+          } else if (index == currStoryIndex) {
             return StoryBar(percentWatched: currWatchedPercent, width: barWidth);
           } else {
             return StoryBar(percentWatched: 0, width: barWidth);

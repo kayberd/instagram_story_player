@@ -1,19 +1,16 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:instagram_story_player/data/media_data.dart';
-import 'package:instagram_story_player/models/story_group.dart';
 
 part 'story_event.dart';
-
 part 'story_state.dart';
 
 class StoryBloc extends Bloc<StoryEvent, StoryState> {
   StoryBloc() : super(StoryInitial()) {
     on<StoryEvent>((event, emit) {
-
       StoryUpdated? newState;
       var currGroupIndex = state.currGroupIndex;
-      if(event.sender != currGroupIndex) return;
+      if (event.sender != currGroupIndex) return;
       var currStoryIndex = state.currStoryIndexes[currGroupIndex];
 
       if (event is TapLeftEvent) {

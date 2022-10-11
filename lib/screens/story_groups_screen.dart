@@ -1,10 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_carousel_slider/carousel_slider.dart';
-import 'package:flutter_carousel_slider/carousel_slider_indicators.dart';
 import 'package:flutter_carousel_slider/carousel_slider_transforms.dart';
 import 'package:instagram_story_player/bloc/story_bloc.dart';
 import 'package:instagram_story_player/data/media_data.dart';
@@ -74,16 +72,4 @@ class _StoryGroupsScreenState extends State<StoryGroupsScreen> {
     }
     currGroupIndex = newIndex;
   }
-
-// _simulateSwipeRight() async {
-//   GestureBinding.instance.handlePointerEvent(PointerDownEvent(
-//     position: Offset(200, 300),
-//   ));
-//   await Future.delayed(Duration(milliseconds: 500));
-//   GestureBinding.instance.handlePointerEvent(Pointer)
-//   GestureBinding.instance.handlePointerEvent(PointerUpEvent(
-//     position: Offset(200, 300),
-//   ));
-// }
-
 }

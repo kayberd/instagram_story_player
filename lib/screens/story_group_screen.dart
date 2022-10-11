@@ -7,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:instagram_story_player/bloc/story_bloc.dart';
 import 'package:instagram_story_player/data/media_data.dart';
 import 'package:instagram_story_player/models/story.dart';
-import 'package:instagram_story_player/models/story_group.dart';
 import 'package:instagram_story_player/screens/components/story_bars.dart';
 
 class StoryGroupScreen extends StatefulWidget {
@@ -109,7 +108,6 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
   }
 
   void _startWatching([int? index]) {
-
     setState(() {
       isStopped = false;
       percentWatched = 0.0;
@@ -172,6 +170,6 @@ class _StoryGroupScreenState extends State<StoryGroupScreen> {
   }
 
   void _clearTimer() {
-    if(_timer?.isActive ?? false) _timer!.cancel();
+    if (_timer?.isActive ?? false) _timer!.cancel();
   }
 }
