@@ -1,11 +1,9 @@
-
-
-enum MediaType {image, video}
+enum MediaType { image, video }
 
 class Story {
-   final String url;
-   final MediaType media;
-   final Duration? duration;
+  final String url;
+  final MediaType media;
+  final Duration? duration;
 
-   Story({required this.url, required this.media, this.duration});
+  Story({required this.url, required this.media, this.duration});
 }

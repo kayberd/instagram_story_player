@@ -4,5 +4,4 @@ class StoryGroup {
   List<Story> stories;
 
   StoryGroup({required this.stories}) {}
-
 }

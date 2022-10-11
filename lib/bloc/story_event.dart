@@ -2,6 +2,7 @@ part of 'story_bloc.dart';
 
 abstract class StoryEvent extends Equatable {
   final sender;
+
   const StoryEvent(this.sender) : super();
 
   List<Object?> get props => [sender];
